@@ -2,11 +2,11 @@ import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 
-// fills ${VITE_*} in index.html from .env.<mode> for dev and test builds; prod keeps them for envsubst
-function devConfigSubst(env) {
+// fills ${VITE_*} in index.html from .env.<mode>; production builds keep them for envsubst
+function configSubst(env) {
   return {
-    name: 'kt-dev-config-subst',
-    apply: (_, { command, mode }) => command === 'serve' || mode === 'test',
+    name: 'kt-config-subst',
+    apply: (_, { mode }) => mode !== 'production',
     transformIndexHtml(html) {
       return html.replace(/\$\{(VITE_[A-Z0-9_]+)\}/g, (_, name) => env[name] ?? '')
     },
@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => {
       }
     },
     plugins: [
-      devConfigSubst(env),
+      configSubst(env),
       vue({
         template: {
           compilerOptions: {

@@ -1,5 +1,5 @@
 <template>
-  <KoorHeader />
+  <KoorHeader :signed-in="signedIn" />
   <main>
     <router-view />
   </main>
@@ -16,13 +16,15 @@ import { onBeforeMount, onMounted, provide, onBeforeUnmount, ref, nextTick } fro
 const KtStore = useKtStore()
 const router = useRouter()
 
+const signedIn = ref(false)
 const isMobile = ref(window.innerWidth < 1055)
 provide('isMobile', isMobile)
 
 onBeforeMount(async () => {
   // after the first navigation, so /callback has stored the session
   await router.isReady()
-  if (await isSignedIn()) await KtStore.fetchCRSOptions()
+  signedIn.value = await isSignedIn()
+  if (signedIn.value) await KtStore.fetchCRSOptions()
   await nextTick()
 })
 

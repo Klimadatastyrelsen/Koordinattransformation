@@ -84,8 +84,7 @@ input[type="number"]::-ms-expand {
 }
 
 /* ========== Search Components ========== */
-.KT-gsearch {
-  position: relative;
+.KT-address-search {
   background-color: var(--bg2);
   width: 100%;
   padding: 0.2rem 0.8rem;
@@ -97,17 +96,13 @@ input[type="number"]::-ms-expand {
   align-items: center;
 }
 
-.KT-gsearch-el {
+.KT-address-search-el {
   margin: 0.5rem !important;
 }
 
-.KT-address-search {
+.KT-address-search-field {
   position: relative;
   min-width: 60%;
-}
-
-.KT-address-search input {
-  width: 100%;
 }
 
 .KT-address-search-results {

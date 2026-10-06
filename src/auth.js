@@ -6,7 +6,7 @@ const TRANSACTION = 'koord.auth.transaction'
 const REFRESH_LOCK = 'koord.auth.refresh'
 const EXPIRY_MARGIN_MS = 60_000
 
-const redirectUri = () => `${location.origin}/callback`
+const REDIRECT_URI = `${location.origin}/callback`
 
 let discovered
 const discovery = () => discovered ??= fetch(`${config.authUrl}/.well-known/openid-configuration`)
@@ -37,7 +37,7 @@ const transact = async (mode, operation) => {
     transaction.onerror = transaction.onabort = () => reject(transaction.error)
   })
 }
-const read = async () => (await transact('readonly', (store) => store.get('current'))) ?? null
+const read = () => transact('readonly', (store) => store.get('current'))
 const write = (session) => transact('readwrite', (store) => store.put(session, 'current'))
 const clear = () => transact('readwrite', (store) => store.delete('current'))
 
@@ -68,7 +68,7 @@ const post = async (endpoint, params) => {
 
 const tokenRequest = async (params) => post((await discovery()).token_endpoint, params)
 
-export const isSignedIn = async () => (await read()) !== null
+export const isSignedIn = async () => Boolean(await read())
 
 export async function login(returnTo = location.pathname + location.search) {
   const { authorization_endpoint } = await discovery()
@@ -80,7 +80,7 @@ export async function login(returnTo = location.pathname + location.search) {
   url.search = new URLSearchParams({
     response_type: 'code',
     client_id: config.authClientId,
-    redirect_uri: redirectUri(),
+    redirect_uri: REDIRECT_URI,
     scope: 'openid offline_access',
     // without a resource the access token is opaque, and the gateway and bifrost reject it
     resource: config.authAudience,
@@ -101,7 +101,7 @@ export async function handleCallback({ code, state, error }) {
     grant_type: 'authorization_code',
     code,
     code_verifier: transaction.verifier,
-    redirect_uri: redirectUri(),
+    redirect_uri: REDIRECT_URI,
     resource: config.authAudience,
   })))
   return transaction.returnTo

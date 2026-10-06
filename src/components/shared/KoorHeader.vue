@@ -55,12 +55,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { isSignedIn, logout } from '../../auth.js'
+import { logout } from '../../auth.js'
 
-// sign-in and sign-out are full page loads, so this never goes stale
-const signedIn = ref(false)
-isSignedIn().then((value) => signedIn.value = value)
+defineProps({ signedIn: Boolean })
 </script>
 
 <style>

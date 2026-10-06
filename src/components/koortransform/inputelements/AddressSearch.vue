@@ -1,9 +1,9 @@
 <template>
-  <div class="KT-gsearch">
+  <div class="KT-address-search">
     <label for="address-search">
-      <p class="KT-gsearch-el">Søg koordinat via adresse eller stednavn</p>
+      <p class="KT-address-search-el">Søg koordinat via adresse eller stednavn</p>
     </label>
-    <div class="KT-address-search KT-gsearch-el">
+    <div class="KT-address-search-field KT-address-search-el">
       <input
         id="address-search"
         v-model="query"
@@ -93,6 +93,7 @@ function search() {
 
 function move(step) {
   active.value = Math.min(Math.max(active.value + step, 0), results.value.length - 1)
+  document.getElementById(`address-search-result-${active.value}`)?.scrollIntoView({ block: 'nearest' })
 }
 
 function choose(match) {

@@ -37,8 +37,7 @@ async function mockServices(context, tokenResponses) {
   await context.route('**/v1.2/crs/', (route) => reply(route, { DK: ['EPSG:25832'], GL: [], Global: [] }))
   await context.route('**/v1.2/crs/EPSG:25832', (route) => reply(route, CRS))
   await context.route('**/v1.2/trans/**', (route) => reply(route, { v1: 0, v2: 0, v3: null, v4: null }))
-  await context.route('**/resolve', (route) => reply(route, { input: '', matches: [] }))
-  await context.route('**/search', (route) => reply(route, { input: '', matches: [] }))
+  await context.route('**/{resolve,search}', (route) => reply(route, { input: '', matches: [] }))
   return tokenRequests
 }
 
@@ -58,6 +57,7 @@ test('signs in with pkce and sends the bearer to webproj and bifrost', async ({ 
   await page.goto(`/callback?code=code-1&state=${params.get('state')}`)
   expect((await crs).headers().authorization).toBe('Bearer at-1')
   await expect(page).toHaveURL(new URL('/', baseURL).href)
+  await expect(page.getByRole('button', { name: 'Log ud' })).toBeAttached()
 
   const [exchange] = tokenRequests
   expect(exchange.get('grant_type')).toBe('authorization_code')

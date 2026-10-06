@@ -2,6 +2,8 @@ import { defineStore } from 'pinia'
 import { mapCoorToList } from '../helperfunctions'
 import { config } from '../runtimeConfig.js'
 import { authFetch } from '../auth.js'
+
+const CRS_URL = `${config.apiBaseUrl}/v1.2/crs/`
 /**
  * @module KtStore
  * @description
@@ -224,6 +226,21 @@ export const useKtStore = defineStore('KtStore', {
   },
   actions: {
     /**
+     * Transform coordinates between two CRS through the WEBPROJ API.
+     * @async
+     * @param {string} from - The SRID of the input coordinates.
+     * @param {string} to - The SRID to transform to.
+     * @param {Object} coordinates - The input coordinates object ({ v1, v2, v3, v4 }).
+     * @returns {Promise<Object>} The transformed coordinates object.
+     */
+    async transform(from, to, coordinates) {
+      const response = await authFetch(`${this.webproj}${from}/${to}/${mapCoorToList(coordinates)}`)
+      if (!response.ok) {
+        throw new Error(`Error fetching transformation: ${response.status} ${response.statusText}`)
+      }
+      return response.json()
+    },
+    /**
      * Set the selected cover area (e.g. 'DK' or 'GL').
      * @warning setting the coverarea to anything else than 'DK' or 'GL' bricks the app 
      * @param {string} area - The cover area code.
@@ -242,7 +259,7 @@ export const useKtStore = defineStore('KtStore', {
      */
     async fetchCRSOptions() {
       try {
-        const response = await authFetch(`${config.apiBaseUrl}/v1.2/crs/`)
+        const response = await authFetch(CRS_URL)
         if (!response.ok) {
           throw new Error(`Error fetching CRS-Options! status: ${response.status}`)
         }
@@ -279,7 +296,7 @@ export const useKtStore = defineStore('KtStore', {
             }
             else {
               try {
-                const detailsResponse = await authFetch(`${config.apiBaseUrl}/v1.2/crs/${crsOption}`)
+                const detailsResponse = await authFetch(`${CRS_URL}${crsOption}`)
                 if (!detailsResponse.ok) {
                   throw new Error(`Error fetching details for ${crsOption}`)
                 }
@@ -349,14 +366,7 @@ export const useKtStore = defineStore('KtStore', {
       }
       else{
         try {
-          const coordinateResponse = await authFetch(
-            `${this.webproj}${crs}/${this.CRSFrom}/${mapCoorToList(coordinates)}`,
-          )
-          if(!coordinateResponse.ok){
-            throw new Error(`Error Fetching coordinatesFrom: ${coordinateResponse.statusText}`)
-          }
-          const coordinatesData = await coordinateResponse.json()
-          this.CoordinatesFrom = coordinatesData
+          this.CoordinatesFrom = await this.transform(crs, this.CRSFrom, coordinates)
         } catch (error) {
           console.error('[CoordinatesFrom] Fetch Error: failed fetching coordinatesfrom, update aborted', error)
         }
@@ -386,13 +396,7 @@ export const useKtStore = defineStore('KtStore', {
       }
       else{
         try {
-          const coordinateResponse = await authFetch(
-            `${this.webproj}${crs}/${this.CRSFrom}/${mapCoorToList(coordinates)}`,
-          )
-          if(!coordinateResponse.ok){
-            throw new Error(`Error Fetching coordinatesFrom: ${coordinateResponse.statusText}`)
-          }
-          const coordinatesData = await coordinateResponse.json()
+          const coordinatesData = await this.transform(crs, this.CRSFrom, coordinates)
           coordinatesData.v3 = v3
           this.CoordinatesFrom = coordinatesData
         } catch (error) {
@@ -416,14 +420,7 @@ export const useKtStore = defineStore('KtStore', {
       }
       else {
         try {
-          const coordinateResponse = await authFetch(
-            `${this.webproj}${this.CRSFrom}/${this.CRSTo}/${mapCoorToList(this.CoordinatesFrom)}`,
-          )
-          if(!coordinateResponse.ok){
-            throw new Error(`Error Fetching coordinatesTo: ${coordinateResponse.statusText}`)
-          }
-          const coordinatesData = await coordinateResponse.json()
-          this.CoordinatesTo = coordinatesData
+          this.CoordinatesTo = await this.transform(this.CRSFrom, this.CRSTo, this.CoordinatesFrom)
         } catch (error) {
           console.error('[CoordinatesTo] Fetch Error: failed fetching coordinatesTo, update aborted', error)
         }

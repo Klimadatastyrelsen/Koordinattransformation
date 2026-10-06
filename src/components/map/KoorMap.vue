@@ -41,7 +41,6 @@ import proj4 from 'proj4'
 import { onMounted, ref, computed, watch} from 'vue'
 import { useKtStore } from '../../store/store.js'
 import { config } from '../../runtimeConfig.js'
-import { authFetch } from '../../auth.js'
 
 
 const KtStore = useKtStore()
@@ -241,11 +240,7 @@ watch(coorFrom, async (to, from) => {
 
   else{
     try {
-      const response = await authFetch(`${KtStore.webproj}${KtStore.CRSFrom}/${mapData.value[coverArea.value].projection}/${mapCoorToList(to)}`)
-      if(!response.ok){
-        throw new Error(`Error fetching coordinates for map: ${response.statusText}`)
-      }
-      const data = await response.json()
+      const data = await KtStore.transform(KtStore.CRSFrom, mapData.value[coverArea.value].projection, to)
       overlay.value.setPosition(mapCoorToList(data))
 
     } catch (error) {
