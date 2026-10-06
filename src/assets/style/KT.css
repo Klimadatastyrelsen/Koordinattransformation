@@ -101,22 +101,37 @@ input[type="number"]::-ms-expand {
   margin: 0.5rem !important;
 }
 
-#gSearch {
+.KT-address-search {
+  position: relative;
   min-width: 60%;
+}
+
+.KT-address-search input {
+  width: 100%;
+}
+
+.KT-address-search-results {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  max-height: 15rem;
+  overflow-y: auto;
   margin: 0;
   padding: 0;
+  list-style: none;
+  background-color: var(--bg1);
+  border: 1px solid var(--grey2);
 }
 
-/* Search result list */
-.gs-result-list {
-  max-height: 15rem;
-  overflow-y: scroll;
-  z-index: 100;
+.KT-address-search-results li {
+  padding: var(--space-sm);
+  cursor: pointer;
 }
 
-/* Hide search button */
-.gs-input-button {
-  display: none !important;
+.KT-address-search-results li:hover,
+.KT-address-search-results li[aria-selected="true"] {
+  background-color: var(--bg2);
 }
 
 /* ========== Layout & Containers ========== */

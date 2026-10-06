@@ -8,15 +8,15 @@ SRC=/srv/static-source
 DEST=/usr/share/nginx/html
 INDEX=index.html
 
-VARS='VITE_API_BASE_URL VITE_API_BASE_PATH VITE_DATAFORSYNING_TOKEN VITE_DATAFORDELER_TOKEN'
+VARS='VITE_API_BASE_URL VITE_API_BASE_PATH VITE_DATAFORSYNING_TOKEN VITE_DATAFORDELER_TOKEN VITE_AUTH_URL VITE_AUTH_CLIENT_ID VITE_AUTH_AUDIENCE VITE_BIFROST_URL'
 
 missing=
 for name in $VARS; do
-  eval "val=\${$name-__UNSET__}"
+  eval "val=\${$name:-__UNSET__}"
   [ "$val" = "__UNSET__" ] && missing="$missing $name"
 done
 if [ -n "$missing" ]; then
-  echo "envsubst-config: missing required env:$missing" >&2
+  echo "envsubst-config: missing or empty required env:$missing" >&2
   exit 1
 fi
 

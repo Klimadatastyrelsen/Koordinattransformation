@@ -22,9 +22,19 @@ VITE_DATAFORSYNING_TOKEN = <dataforsyningen token>
 VITE_DATAFORDELER_TOKEN = <datafordeler api-nøgle>
 VITE_API_BASE_URL = https://api.dataforsyningen.dk/rest/webproj_test
 VITE_API_BASE_PATH = /v1.2/trans/
+VITE_AUTH_URL = https://auth.rubedo.dk
+VITE_AUTH_CLIENT_ID = <kds-auth client id>
+VITE_AUTH_AUDIENCE = https://auth.rubedo.dk
+VITE_BIFROST_URL = https://bifrost.rubedo.dk
 ```
 
-`VITE_DATAFORSYNING_TOKEN` kan oprettes på https://dataforsyningen.dk/.
+Brugerne logger ind via kds-auth, og deres access token sendes som
+`Authorization: Bearer` til WEBPROJ og Bifrost (adressesøgning).
+`VITE_AUTH_CLIENT_ID` er en offentlig klient i kds-auth med
+`<origin>/callback` som redirect URI og `<origin>/` som post-logout URI.
+`VITE_AUTH_AUDIENCE` skal være den audience, gatewayen og Bifrost accepterer.
+
+`VITE_DATAFORSYNING_TOKEN` bruges kun til WMS-kortet og kan oprettes på https://dataforsyningen.dk/.
 
 `VITE_DATAFORDELER_TOKEN` er en Datafordeler API-nøgle, som oprettes under
 Autentifikationsmetoder på https://datafordeler.dk/. Brugernavn/password
@@ -65,10 +75,15 @@ Koderne fra WEBPROJ bliver derefter store'et i en Pinia store. Under runtime, ka
 E2E test er implementeret via [Playwright]{https://playwright.dev/} <br>
 
 Test miljøet kører i 3 browsere, Edge, Chrome og Firefox, hvor Safari er udeladt grundet ustabilitet på Linux.
-Test kan køres via
+Testene logger først ind i kds-auth med en testbruger, så sæt `E2E_USER` og
+`E2E_PASSWORD`. Klienten i `.env.test` skal have `http://localhost:4173/callback`
+som redirect URI. Test kan køres via
 ```
-npm run test
+E2E_USER=<e-mail> E2E_PASSWORD=<adgangskode> npm run test
 ```
+
+`tests/e2e/auth.test.js` mocker kds-auth, WEBPROJ og Bifrost og kræver ingen
+testbruger: `npx playwright test tests/e2e/auth.test.js --no-deps`.
 
 For debug setup, kør:
 ```

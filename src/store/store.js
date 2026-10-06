@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { mapCoorToList } from '../helperfunctions'
 import { config } from '../runtimeConfig.js'
+import { authFetch } from '../auth.js'
 /**
  * @module KtStore
  * @description
@@ -9,7 +10,6 @@ import { config } from '../runtimeConfig.js'
  *
  * ## State properties:
  * - `webproj` {string}: Base URL for the WEBPROJ API.
- * - `token` {string|null}: API authentication token.
  * - `baseUrl` {string|null}: Base URL for static assets.
  * - `CRSOptions` {Object}: CRS options loaded from API/localStorage.
  * - `CoverArea` {string}: Selected cover area (e.g. 'DK', 'GL').
@@ -30,7 +30,6 @@ export const useKtStore = defineStore('KtStore', {
    * Pinia store for coordinate transformation.
    * @typedef {Object} KtStoreState
    * @property {string} webproj - Base API URL for WEBPROJ.
-   * @property {string|null} token - API authentication token.
    * @property {string|null} baseUrl - Base URL for static assets.
    * @property {Object} CRSOptions - CRS options loaded from API/localStorage.
    * @property {string} CoverArea - Selected cover area (e.g. 'DK', 'GL').
@@ -41,9 +40,6 @@ export const useKtStore = defineStore('KtStore', {
    */
   state: () => ({
     webproj: `${config.apiBaseUrl}${config.apiBasePath}`,
-
-    // Authentication token, default to null if not provided
-    token: config.dataforsyningToken || null,
 
     //baseUrl to find statically copied members
     baseUrl: new URL(import.meta.url).origin || null,
@@ -68,15 +64,6 @@ export const useKtStore = defineStore('KtStore', {
      * @returns {string}
      */
     getWebProj: (state) => state.webproj,
-    /**
-     * Get the API token for WEBPROJ requests.
-     * Can be generated at https://dataforsyningen.dk/
-     * @see https://dataforsyningen.dk/
-     * @param {KtStoreState} state
-     * @returns {string|null} API authentication token or null if not set.
-     */
-    getToken: (state) => state.token,
-
     /**
      * Get the selected cover area.
      * Returns the selected cover area code.
@@ -255,7 +242,7 @@ export const useKtStore = defineStore('KtStore', {
      */
     async fetchCRSOptions() {
       try {
-        const response = await fetch(`https://api.dataforsyningen.dk/rest/webproj/v1.2/crs/?token=${this.token}`)
+        const response = await authFetch(`${config.apiBaseUrl}/v1.2/crs/`)
         if (!response.ok) {
           throw new Error(`Error fetching CRS-Options! status: ${response.status}`)
         }
@@ -292,7 +279,7 @@ export const useKtStore = defineStore('KtStore', {
             }
             else {
               try {
-                const detailsResponse = await fetch(`https://api.dataforsyningen.dk/rest/webproj/v1.2/crs/${crsOption}?token=${this.token}`)
+                const detailsResponse = await authFetch(`${config.apiBaseUrl}/v1.2/crs/${crsOption}`)
                 if (!detailsResponse.ok) {
                   throw new Error(`Error fetching details for ${crsOption}`)
                 }
@@ -362,8 +349,8 @@ export const useKtStore = defineStore('KtStore', {
       }
       else{
         try {
-          const coordinateResponse = await fetch(
-            `${this.webproj}${crs}/${this.CRSFrom}/${mapCoorToList(coordinates)}?token=${this.token}`,
+          const coordinateResponse = await authFetch(
+            `${this.webproj}${crs}/${this.CRSFrom}/${mapCoorToList(coordinates)}`,
           )
           if(!coordinateResponse.ok){
             throw new Error(`Error Fetching coordinatesFrom: ${coordinateResponse.statusText}`)
@@ -399,8 +386,8 @@ export const useKtStore = defineStore('KtStore', {
       }
       else{
         try {
-          const coordinateResponse = await fetch(
-            `${this.webproj}${crs}/${this.CRSFrom}/${mapCoorToList(coordinates)}?token=${this.token}`,
+          const coordinateResponse = await authFetch(
+            `${this.webproj}${crs}/${this.CRSFrom}/${mapCoorToList(coordinates)}`,
           )
           if(!coordinateResponse.ok){
             throw new Error(`Error Fetching coordinatesFrom: ${coordinateResponse.statusText}`)
@@ -429,8 +416,8 @@ export const useKtStore = defineStore('KtStore', {
       }
       else {
         try {
-          const coordinateResponse = await fetch(
-            `${this.webproj}${this.CRSFrom}/${this.CRSTo}/${mapCoorToList(this.CoordinatesFrom)}?token=${this.token}`,
+          const coordinateResponse = await authFetch(
+            `${this.webproj}${this.CRSFrom}/${this.CRSTo}/${mapCoorToList(this.CoordinatesFrom)}`,
           )
           if(!coordinateResponse.ok){
             throw new Error(`Error Fetching coordinatesTo: ${coordinateResponse.statusText}`)

@@ -8,12 +8,10 @@ import App from './App.vue'
 import '@dataforsyningen/designsystem/assets/designsystem.css'
 import { DSLogo, DSLogoTitle, DSNavResponsive } from '@dataforsyningen/designsystem'
 
-import { GSearchUI } from '@dataforsyningen/gsearch-ui'
 import { Spinner } from '@dataforsyningen/designsystem/assets/designsystem.js'   
 
 
 customElements.define('ds-spinner', Spinner)
-customElements.define('g-search', GSearchUI)
 customElements.define('ds-logo', DSLogo)
 customElements.define('ds-logo-title', DSLogoTitle)
 customElements.define('ds-nav-responsive', DSNavResponsive)

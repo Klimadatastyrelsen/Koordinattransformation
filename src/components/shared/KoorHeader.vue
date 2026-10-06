@@ -41,12 +41,26 @@
           </span>
           <span class="KT-route"> Om Koordinattransformation</span>
         </router-link>
+        <button
+          v-if="signedIn"
+          type="button"
+          class="quiet"
+          @click="logout"
+        >
+          <span class="KT-route">Log ud</span>
+        </button>
       </nav>
     </ds-nav-responsive>
   </header>
 </template>
 
 <script setup>
+import { ref } from 'vue'
+import { isSignedIn, logout } from '../../auth.js'
+
+// sign-in and sign-out are full page loads, so this never goes stale
+const signedIn = ref(false)
+isSignedIn().then((value) => signedIn.value = value)
 </script>
 
 <style>

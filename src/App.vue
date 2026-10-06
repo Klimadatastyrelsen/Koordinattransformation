@@ -9,15 +9,20 @@
 <script setup>
 import KoorHeader from './components/shared/KoorHeader.vue'
 import { useKtStore } from './store/store.js'
+import { useRouter } from 'vue-router'
+import { isSignedIn } from './auth.js'
 import { onBeforeMount, onMounted, provide, onBeforeUnmount, ref, nextTick } from 'vue'
 
 const KtStore = useKtStore()
+const router = useRouter()
 
 const isMobile = ref(window.innerWidth < 1055)
 provide('isMobile', isMobile)
 
 onBeforeMount(async () => {
-  await KtStore.fetchCRSOptions()
+  // after the first navigation, so /callback has stored the session
+  await router.isReady()
+  if (await isSignedIn()) await KtStore.fetchCRSOptions()
   await nextTick()
 })
 
