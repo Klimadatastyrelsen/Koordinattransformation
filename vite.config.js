@@ -2,13 +2,11 @@ import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 
-// conf for dev-only substitution of ${VITE_*} placeholders in index.html,
-// grabbed from the loaded .env.<mode>
-// the same placeholders are substituted by envsubst in prod (at container startup)
+// fills ${VITE_*} in index.html from .env.<mode> for dev and test builds; prod keeps them for envsubst
 function devConfigSubst(env) {
   return {
     name: 'kt-dev-config-subst',
-    apply: 'serve',
+    apply: (_, { command, mode }) => command === 'serve' || mode === 'test',
     transformIndexHtml(html) {
       return html.replace(/\$\{(VITE_[A-Z0-9_]+)\}/g, (_, name) => env[name] ?? '')
     },
@@ -29,7 +27,7 @@ export default defineConfig(({ mode }) => {
       vue({
         template: {
           compilerOptions: {
-            isCustomElement: (tag) => tag.includes('ds-') || tag.includes('g-')
+            isCustomElement: (tag) => tag.includes('ds-')
           }
         }
       }),
