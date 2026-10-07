@@ -14,8 +14,19 @@ function configSubst(env) {
 }
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), 'VITE_')
+  const env = loadEnv(mode, process.cwd(), ['VITE_', 'BIFROST_'])
   return {
+    server: {
+      // bifrost does not accept the fake idp's tokens; send an api key instead
+      proxy: env.BIFROST_KEY ? {
+        '/bifrost': {
+          target: env.BIFROST_URL,
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/bifrost/, ''),
+          headers: { Authorization: `Bearer ${env.BIFROST_KEY}` },
+        },
+      } : undefined,
+    },
     resolve: {
       //forces vite to use the full vue bundler even when running in test
       alias: {
