@@ -1,7 +1,6 @@
 import { defineConfig, devices } from '@playwright/test'
 
-// written by auth.setup.js
-const AUTH_STATE = 'tests/e2e/.auth/user.json'
+export const AUTH_STATE = 'tests/e2e/.auth/user.json'
 
 export default defineConfig({
   testDir: './tests/e2e',

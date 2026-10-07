@@ -1,5 +1,6 @@
 // kds-auth sign-in as a public pkce client; one session in indexeddb, shared by all tabs
 
+import { ref } from 'vue'
 import { config } from './runtimeConfig.js'
 
 const TRANSACTION = 'koord.auth.transaction'
@@ -68,7 +69,9 @@ const post = async (endpoint, params) => {
 
 const tokenRequest = async (params) => post((await discovery()).token_endpoint, params)
 
-export const isSignedIn = async () => Boolean(await read())
+// mirror of the stored session for the ui, refreshed by the router guard on each navigation
+export const signedIn = ref(false)
+export const isSignedIn = async () => (signedIn.value = Boolean(await read()))
 
 export async function login(returnTo = location.pathname + location.search) {
   const { authorization_endpoint } = await discovery()

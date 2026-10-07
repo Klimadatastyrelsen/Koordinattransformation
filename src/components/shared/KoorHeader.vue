@@ -55,9 +55,7 @@
 </template>
 
 <script setup>
-import { logout } from '../../auth.js'
-
-defineProps({ signedIn: Boolean })
+import { logout, signedIn } from '../../auth.js'
 </script>
 
 <style>

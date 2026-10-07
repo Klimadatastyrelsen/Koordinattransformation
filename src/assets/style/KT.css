@@ -97,7 +97,7 @@ input[type="number"]::-ms-expand {
 }
 
 .KT-address-search-el {
-  margin: 0.5rem !important;
+  margin: 0.5rem;
 }
 
 .KT-address-search-field {

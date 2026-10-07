@@ -34,9 +34,9 @@ async function mockServices(context, tokenResponses) {
     await new Promise((resolve) => setTimeout(resolve, 300))
     return reply(route, tokenResponses[params.get('grant_type')])
   })
-  await context.route('**/v1.2/crs/', (route) => reply(route, { DK: ['EPSG:25832'], GL: [], Global: [] }))
-  await context.route('**/v1.2/crs/EPSG:25832', (route) => reply(route, CRS))
-  await context.route('**/v1.2/trans/**', (route) => reply(route, { v1: 0, v2: 0, v3: null, v4: null }))
+  await context.route('**/crs/', (route) => reply(route, { DK: ['EPSG:25832'], GL: [], Global: [] }))
+  await context.route('**/crs/EPSG:25832', (route) => reply(route, CRS))
+  await context.route('**/trans/**', (route) => reply(route, { v1: 0, v2: 0, v3: null, v4: null }))
   await context.route('**/{resolve,search}', (route) => reply(route, { input: '', matches: [] }))
   return tokenRequests
 }
@@ -53,7 +53,7 @@ test('signs in with pkce and sends the bearer to webproj and bifrost', async ({ 
   expect(params.get('scope')).toBe('openid offline_access')
   expect(params.get('resource')).toBeTruthy()
 
-  const crs = page.waitForRequest('**/v1.2/crs/')
+  const crs = page.waitForRequest('**/crs/')
   await page.goto(`/callback?code=code-1&state=${params.get('state')}`)
   expect((await crs).headers().authorization).toBe('Bearer at-1')
   await expect(page).toHaveURL(new URL('/', baseURL).href)
@@ -87,7 +87,7 @@ test('two tabs with an expired token refresh it once', async ({ page, context })
   await page.close()
 
   const pages = [await context.newPage(), await context.newPage()]
-  const crs = pages.map((page) => page.waitForRequest('**/v1.2/crs/'))
+  const crs = pages.map((page) => page.waitForRequest('**/crs/'))
   await Promise.all(pages.map((page) => page.goto('/')))
 
   for (const request of await Promise.all(crs)) expect(request.headers().authorization).toBe('Bearer at-2')

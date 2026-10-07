@@ -62,7 +62,7 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to) => {
-  if (to.meta.auth && !(await isSignedIn())) {
+  if (!(await isSignedIn()) && to.meta.auth) {
     login(to.fullPath).catch(console.error)
     return false
   }

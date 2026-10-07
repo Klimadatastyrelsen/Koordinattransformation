@@ -60,6 +60,7 @@ const active = ref(-1)
 let timer
 let controller
 
+const cities = new Map()
 const kinds = { unit: 'adresse', entrance: 'adresse', street: 'vej', postcode: 'postnummer', city: 'by' }
 const kind = (match) => {
   const [ref] = Object.keys(match.refs)
@@ -77,14 +78,17 @@ const bifrost = async (endpoint, body, signal) => {
   return response.json()
 }
 
-// streets only carry postcodes; look up their city names in one batch
+// streets only carry postcodes; look up the uncached city names in one batch
 async function addCities(matches, signal) {
-  const codes = [...new Set(matches.flatMap((match) => match.postcodes ?? []))]
-  if (!codes.length) return
-  const found = await bifrost('search', codes.map((input) => ({ input, target: 'postcode', limit: 1 })), signal)
-  const cities = Object.fromEntries(found.map(({ input, matches }) => [input, matches?.[0]?.components.city]))
+  const missing = [...new Set(matches.flatMap((match) => match.postcodes ?? []))].filter((code) => !cities.has(code))
+  if (missing.length) {
+    const found = await bifrost('search', missing.map((input) => ({ input, target: 'postcode', limit: 1 })), signal)
+    for (const { input, matches } of found) {
+      if (matches?.[0]) cities.set(input, matches[0].components.city)
+    }
+  }
   for (const match of matches) {
-    match.city = match.postcodes?.map((code) => cities[code]).filter(Boolean).join(', ')
+    match.city = match.postcodes?.map((code) => cities.get(code)).filter(Boolean).join(', ')
   }
 }
 
