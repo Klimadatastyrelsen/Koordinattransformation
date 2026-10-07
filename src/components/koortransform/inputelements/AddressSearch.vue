@@ -36,6 +36,11 @@
           @mousedown.prevent="choose(match)"
         >
           {{ match.result }}
+          <span
+            v-if="match.city"
+            class="KT-address-search-city"
+          >{{ match.city }}</span>
+          <span class="KT-address-search-kind">{{ kind(match) }}</span>
         </li>
       </ul>
     </div>
@@ -55,6 +60,12 @@ const active = ref(-1)
 let timer
 let controller
 
+const kinds = { unit: 'adresse', entrance: 'adresse', street: 'vej', postcode: 'postnummer', city: 'by' }
+const kind = (match) => {
+  const [ref] = Object.keys(match.refs)
+  return kinds[ref] ?? ref
+}
+
 const bifrost = async (endpoint, body, signal) => {
   const response = await authFetch(`${config.bifrostUrl}/${endpoint}`, {
     method: 'POST',
@@ -63,7 +74,18 @@ const bifrost = async (endpoint, body, signal) => {
     signal,
   })
   if (!response.ok) throw new Error(`[AddressSearch] bifrost /${endpoint}: ${response.status}`)
-  return (await response.json()).matches
+  return response.json()
+}
+
+// streets only carry postcodes; look up their city names in one batch
+async function addCities(matches, signal) {
+  const codes = [...new Set(matches.flatMap((match) => match.postcodes ?? []))]
+  if (!codes.length) return
+  const found = await bifrost('search', codes.map((input) => ({ input, target: 'postcode', limit: 1 })), signal)
+  const cities = Object.fromEntries(found.map(({ input, matches }) => [input, matches?.[0]?.components.city]))
+  for (const match of matches) {
+    match.city = match.postcodes?.map((code) => cities[code]).filter(Boolean).join(', ')
+  }
 }
 
 function search() {
@@ -83,7 +105,8 @@ function search() {
         bifrost('resolve', { input, limit: 5 }, signal),
         bifrost('search', { input, target: 'stednavn', limit: 3 }, signal),
       ])
-      results.value = [...addresses, ...places]
+      await addCities(addresses.matches, signal)
+      results.value = [...addresses.matches, ...places.matches]
       active.value = -1
     } catch (error) {
       if (error.name !== 'AbortError') console.error(error)

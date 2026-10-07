@@ -120,8 +120,25 @@ input[type="number"]::-ms-expand {
 }
 
 .KT-address-search-results li {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
   padding: var(--space-sm);
   cursor: pointer;
+}
+
+.KT-address-search-city {
+  color: var(--muted-color);
+}
+
+.KT-address-search-kind {
+  margin-left: auto;
+  padding: 0.1em 0.6em;
+  border-radius: 1em;
+  background-color: var(--bg3);
+  color: var(--color);
+  font-size: 0.75em;
+  white-space: nowrap;
 }
 
 .KT-address-search-results li:hover,
