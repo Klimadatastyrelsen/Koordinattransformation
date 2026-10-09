@@ -37,7 +37,7 @@ async function mockServices(context, tokenResponses) {
   await context.route('**/crs/', (route) => reply(route, { DK: ['EPSG:25832'], GL: [], Global: [] }))
   await context.route('**/crs/EPSG:25832', (route) => reply(route, CRS))
   await context.route('**/trans/**', (route) => reply(route, { v1: 0, v2: 0, v3: null, v4: null }))
-  await context.route('**/{resolve,search}', (route) => reply(route, { input: '', matches: [] }))
+  await context.route('**/compose', (route) => reply(route, { addresses: { input: '', matches: [] }, places: { input: '', matches: [] } }))
   return tokenRequests
 }
 
@@ -64,9 +64,9 @@ test('signs in with pkce and sends the bearer to webproj and bifrost', async ({ 
   expect(exchange.get('code')).toBe('code-1')
   expect(createHash('sha256').update(exchange.get('code_verifier')).digest('base64url')).toBe(params.get('code_challenge'))
 
-  const resolve = page.waitForRequest((request) => request.url().endsWith('/resolve') && request.method() === 'POST')
+  const compose = page.waitForRequest((request) => request.url().endsWith('/compose') && request.method() === 'POST')
   await page.locator('#address-search').fill('Rådhuspladsen 1')
-  expect((await resolve).headers().authorization).toBe('Bearer at-1')
+  expect((await compose).headers().authorization).toBe('Bearer at-1')
 })
 
 test('two tabs with an expired token refresh it once', async ({ page, context }) => {

@@ -37,9 +37,9 @@
         >
           {{ match.result }}
           <span
-            v-if="match.city"
+            v-if="city(match)"
             class="KT-address-search-city"
-          >{{ match.city }}</span>
+          >{{ city(match) }}</span>
           <span class="KT-address-search-kind">{{ kind(match) }}</span>
         </li>
       </ul>
@@ -60,36 +60,23 @@ const active = ref(-1)
 let timer
 let controller
 
-const cities = new Map()
 const kinds = { unit: 'adresse', entrance: 'adresse', street: 'vej', postcode: 'postnummer', city: 'by' }
-const kind = (match) => {
-  const [ref] = Object.keys(match.refs)
-  return kinds[ref] ?? ref
-}
+const kind = (match) => kinds[match.ref.kind] ?? match.ref.kind
 
-const bifrost = async (endpoint, body, signal) => {
-  const response = await authFetch(`${config.bifrostUrl}/${endpoint}`, {
+// a street's result names its place only when the road has one postcode
+const city = (match) => match.ref.kind === 'street' && match.result === match.components.street
+  ? match.components.postcodes?.map((postcode) => postcode.city).filter(Boolean).join(', ')
+  : ''
+
+const compose = async (steps, signal) => {
+  const response = await authFetch(`${config.bifrostUrl}/compose`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
+    body: JSON.stringify({ steps }),
     signal,
   })
-  if (!response.ok) throw new Error(`[AddressSearch] bifrost /${endpoint}: ${response.status}`)
+  if (!response.ok) throw new Error(`[AddressSearch] bifrost /compose: ${response.status}`)
   return response.json()
-}
-
-// streets only carry postcodes; look up the uncached city names in one batch
-async function addCities(matches, signal) {
-  const missing = [...new Set(matches.flatMap((match) => match.postcodes ?? []))].filter((code) => !cities.has(code))
-  if (missing.length) {
-    const found = await bifrost('search', missing.map((input) => ({ input, target: 'postcode', limit: 1 })), signal)
-    for (const { input, matches } of found) {
-      if (matches?.[0]) cities.set(input, matches[0].components.city)
-    }
-  }
-  for (const match of matches) {
-    match.city = match.postcodes?.map((code) => cities.get(code)).filter(Boolean).join(', ')
-  }
 }
 
 function search() {
@@ -105,11 +92,10 @@ function search() {
     const { signal } = controller
     try {
       // place names only exist in /search, not in /resolve
-      const [addresses, places] = await Promise.all([
-        bifrost('resolve', { input, limit: 5 }, signal),
-        bifrost('search', { input, target: 'stednavn', limit: 3 }, signal),
-      ])
-      await addCities(addresses.matches, signal)
+      const { addresses, places } = await compose([
+        { id: 'addresses', op: 'resolve', body: { input, limit: 5 } },
+        { id: 'places', op: 'search', body: { input, target: 'stednavn', limit: 3 } },
+      ], signal)
       results.value = [...addresses.matches, ...places.matches]
       active.value = -1
     } catch (error) {
