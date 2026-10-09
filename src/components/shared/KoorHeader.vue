@@ -41,12 +41,21 @@
           </span>
           <span class="KT-route"> Om Koordinattransformation</span>
         </router-link>
+        <button
+          v-if="signedIn"
+          type="button"
+          class="quiet"
+          @click="logout"
+        >
+          <span class="KT-route">Log ud</span>
+        </button>
       </nav>
     </ds-nav-responsive>
   </header>
 </template>
 
 <script setup>
+import { logout, signedIn } from '../../auth.js'
 </script>
 
 <style>

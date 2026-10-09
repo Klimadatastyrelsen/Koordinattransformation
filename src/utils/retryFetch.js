@@ -12,7 +12,7 @@ const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 /**
  * Wrapper for @function window.fetch
  * This function overwrites fetch to retry in case of a 5xx-based error-code. 
- * It is intended to add stability to koordinattransformation, in case webproj, gsearch or another dependency of the site becomes unreliable
+ * It is intended to add stability to koordinattransformation, in case webproj or another dependency of the site becomes unreliable
  * Solution is based on: https://www.fabiofranchino.com/log/how-to-override-fetch-in-javascript-to-intercept-it/
  * @param {Array} args  (same args as fetch: https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch)
  */
@@ -22,7 +22,6 @@ window.fetch = async (...args) => {
   const method = config?.method || 'GET'
 
   if(method !== 'GET') {
-    console.warn('[retryFetch] POST detected: Koordinattransformation was not built with POST based workflows in mind. Watch out for possible bugs in state.')
     return originalFetch(resource, config)
   }
 

@@ -8,15 +8,16 @@ SRC=/srv/static-source
 DEST=/usr/share/nginx/html
 INDEX=index.html
 
-VARS='VITE_API_BASE_URL VITE_API_BASE_PATH VITE_DATAFORSYNING_TOKEN VITE_DATAFORDELER_TOKEN'
+# every placeholder in index.html is required
+VARS=$(grep -oE '\$\{VITE_[A-Z0-9_]+\}' "$SRC/$INDEX" | tr -d '${}' | sort -u)
 
 missing=
 for name in $VARS; do
-  eval "val=\${$name-__UNSET__}"
+  eval "val=\${$name:-__UNSET__}"
   [ "$val" = "__UNSET__" ] && missing="$missing $name"
 done
 if [ -n "$missing" ]; then
-  echo "envsubst-config: missing required env:$missing" >&2
+  echo "envsubst-config: missing or empty required env:$missing" >&2
   exit 1
 fi
 
@@ -27,10 +28,3 @@ ALLOWLIST=$(printf '${%s} ' $VARS)
 tmp=$(mktemp)
 envsubst "$ALLOWLIST" < "$DEST/$INDEX" > "$tmp"
 mv "$tmp" "$DEST/$INDEX"
-
-# catches placeholders that exist in index.html but aren't in $VARS
-leftover=$(grep -oE '\$\{VITE_[A-Z0-9_]+\}' "$DEST/$INDEX" | sort -u | tr '\n' ' ')
-if [ -n "$leftover" ]; then
-  echo "envsubst-config: unsubstituted placeholders remain: $leftover" >&2
-  exit 1
-fi

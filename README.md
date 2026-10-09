@@ -14,17 +14,26 @@ For at udvikle og bygge projektet anbefales følgende setup
 
 ### Setup af miljø
 
-Opret `.env.development` (til `npm run dev`) og `.env.test` (til Playwright)
-i root af projektet. Et eksempel:
+Lokal udvikling kører mod en lokal login-server og WEBPROJ fra `compose.yml`:
 
 ```
-VITE_DATAFORSYNING_TOKEN = <dataforsyningen token>
-VITE_DATAFORDELER_TOKEN = <datafordeler api-nøgle>
-VITE_API_BASE_URL = https://api.dataforsyningen.dk/rest/webproj_test
-VITE_API_BASE_PATH = /v1.2/trans/
+cp .env.example .env
+docker compose up -d
 ```
 
-`VITE_DATAFORSYNING_TOKEN` kan oprettes på https://dataforsyningen.dk/.
+Log ind med knappen på login-siden.
+
+Bifrost (adressesøgning) og baggrundskort kører fortsat mod produktion. Sæt
+`BIFROST_URL`, `BIFROST_KEY` og korttokens i `.env`. Nøgler kan fås fra KDS Auth.
+Dev-serveren sender `BIFROST_KEY` til Bifrost, så nøglen ikke når browseren.
+
+I produktion logger brugerne ind via OIDC med PKCE, og deres access token sendes som
+`Authorization: Bearer` til WEBPROJ og Bifrost.
+`VITE_AUTH_CLIENT_ID` er en offentlig klient med
+`<origin>/callback` som redirect URI og `<origin>/` som post-logout URI.
+`VITE_AUTH_AUDIENCE` skal være den audience, WEBPROJ og Bifrost accepterer.
+
+`VITE_DATAFORSYNING_TOKEN` bruges kun til WMS-kortet og kan oprettes på https://dataforsyningen.dk/.
 
 `VITE_DATAFORDELER_TOKEN` er en Datafordeler API-nøgle, som oprettes under
 Autentifikationsmetoder på https://datafordeler.dk/. Brugernavn/password
@@ -65,10 +74,13 @@ Koderne fra WEBPROJ bliver derefter store'et i en Pinia store. Under runtime, ka
 E2E test er implementeret via [Playwright]{https://playwright.dev/} <br>
 
 Test miljøet kører i 3 browsere, Edge, Chrome og Firefox, hvor Safari er udeladt grundet ustabilitet på Linux.
-Test kan køres via
+Testene logger ind på login-serveren fra `compose.yml`, så start den først. Test kan køres via
 ```
 npm run test
 ```
+
+`tests/e2e/auth.test.js` mocker login, WEBPROJ og Bifrost:
+`npx playwright test tests/e2e/auth.test.js --no-deps`.
 
 For debug setup, kør:
 ```
@@ -192,7 +204,7 @@ I stedet:
 - `index.html` har en `window.__CONFIG__`-blok med `${VITE_*}`-placeholders.
 - Kildekoden læser via `src/runtimeConfig.js` (tynd accessor over `window.__CONFIG__`).
 - I containeren fylder `docker/40-envsubst-config.sh` placeholders ud med `envsubst` ved start.
-- I `npm run dev` gør et lille `apply: 'serve'`-plugin i `vite.config.js` det samme fra `.env.<mode>`.
+- I `npm run dev` og testbuilds gør et lille plugin i `vite.config.js` det samme fra `.env`.
 
 Vi faar et enkelt image pr. release, ingen secrets i repo/CI/image, og kan vaere sikre paa at `import.meta.env.*` altid betyder build-time, mens `window.__CONFIG__.*` altid betyder runtime.
 
@@ -200,12 +212,12 @@ Har du brug for at tilfoeje en ny runtime-var, skal det goeres tre steder: [inde
 
 ### Lokalt build
 
-For at bygge lokalt med env-vars fra en .env.test:
+For at bygge lokalt med env-vars fra `.env`:
 
 ```bash
 docker build -t koordinattransformation:dev .
 docker run --rm -p 8080:8080 \
-  --env-file .env.test
+  --env-file .env \
   --mount type=tmpfs,destination=/usr/share/nginx/html \
   --mount type=tmpfs,destination=/tmp \
   --read-only \
