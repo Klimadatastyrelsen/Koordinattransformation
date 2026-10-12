@@ -340,26 +340,17 @@
       </p>
     </span>
   </span>
-  <div
+  <AddressSearch
     v-if="route.fullPath==='/Denmark' || route.fullPath==='/'"
-    class="KT-gsearch"
-  >
-    <label for="gSearch">
-      <p class="KT-gsearch-el">Søg koordinat via adresse eller stednavn</p>
-    </label>
-    <g-search
-      id="gSearch"
-      class="KT-gsearch-el"
-    />
-  </div>
+    @select="(coordinates) => KtStore.setCoordinatesFrom({ crs: 'EPSG:25832', coordinates })"
+  />
 </template>
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useKtStore } from '../../../store/store.js'
-import { getGSearchCenterPoint } from '../../../helperfunctions.js'
-import { config } from '../../../runtimeConfig.js'
+import AddressSearch from './AddressSearch.vue'
 
 const KtStore = useKtStore()
 const route = useRoute()
@@ -713,29 +704,6 @@ onMounted(async() => {
   }
   formatInputCoor()
   toRepresentation()
-
-
-  const gSearch = document.querySelector('g-search')
-  if (gSearch) {
-    gSearch.setAttribute('data-token', config.dataforsyningToken)
-    document.querySelector('g-search').addEventListener('gsearch:select', (event) => {
-      KtStore.setCoordinatesFrom({
-        crs: 'EPSG:25832',
-        coordinates: getGSearchCenterPoint(event.detail.geometry)
-      })
-    })
-  }
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-      const activeItem = document.querySelector('.gs-result-list')
-      activeItem.childNodes.forEach((elem) => {
-        if(elem.className.includes('active')) {
-          elem.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
-        }
-      })
-    }
-  })
-
 })
 
 </script>

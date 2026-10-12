@@ -2,13 +2,11 @@ import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 
-// conf for dev-only substitution of ${VITE_*} placeholders in index.html,
-// grabbed from the loaded .env.<mode>
-// the same placeholders are substituted by envsubst in prod (at container startup)
-function devConfigSubst(env) {
+// fills ${VITE_*} in index.html from .env.<mode>; production builds keep them for envsubst
+function configSubst(env) {
   return {
-    name: 'kt-dev-config-subst',
-    apply: 'serve',
+    name: 'kt-config-subst',
+    apply: (_, { mode }) => mode !== 'production',
     transformIndexHtml(html) {
       return html.replace(/\$\{(VITE_[A-Z0-9_]+)\}/g, (_, name) => env[name] ?? '')
     },
@@ -16,8 +14,19 @@ function devConfigSubst(env) {
 }
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), 'VITE_')
+  const env = loadEnv(mode, process.cwd(), ['VITE_', 'BIFROST_'])
   return {
+    server: {
+      // bifrost does not accept the fake idp's tokens; send an api key instead
+      proxy: env.BIFROST_KEY ? {
+        '/bifrost': {
+          target: env.BIFROST_URL,
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/bifrost/, ''),
+          headers: { Authorization: `Bearer ${env.BIFROST_KEY}` },
+        },
+      } : undefined,
+    },
     resolve: {
       //forces vite to use the full vue bundler even when running in test
       alias: {
@@ -25,11 +34,11 @@ export default defineConfig(({ mode }) => {
       }
     },
     plugins: [
-      devConfigSubst(env),
+      configSubst(env),
       vue({
         template: {
           compilerOptions: {
-            isCustomElement: (tag) => tag.includes('ds-') || tag.includes('g-')
+            isCustomElement: (tag) => tag.includes('ds-')
           }
         }
       }),

@@ -13,9 +13,17 @@ imagePullSecrets: []
 env:
   VITE_API_BASE_URL: "https://api.dataforsyningen.dk/rest/webproj"
   VITE_API_BASE_PATH: "/v1.2/trans/"
+  # per environment, required: the entrypoint refuses to start with an empty VITE_* var
+  # kds-auth issuer
+  VITE_AUTH_URL: ""
+  # koord's public (pkce) client in kds-auth
+  VITE_AUTH_CLIENT_ID: ""
+  # token aud; must be the audience both the gateway and bifrost accept
+  VITE_AUTH_AUDIENCE: ""
+  VITE_BIFROST_URL: ""
 
 # name of an externally-managed k8s Secret holding the secret-shaped
-# VITE_* vars (VITE_DATAFORSYNING_TOKEN, VITE_DATAFORDELER_TOKEN)
+# VITE_* vars (VITE_DATAFORSYNING_TOKEN for the wms, VITE_DATAFORDELER_TOKEN)
 envFromSecret: ""
 
 # spread replicas across nodes; ScheduleAnyway is soft, DoNotSchedule for strict spread

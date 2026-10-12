@@ -1,6 +1,9 @@
 import { defineStore } from 'pinia'
 import { mapCoorToList } from '../helperfunctions'
 import { config } from '../runtimeConfig.js'
+import { authFetch } from '../auth.js'
+
+const CRS_URL = `${config.apiBaseUrl}/v1.2/crs/`
 /**
  * @module KtStore
  * @description
@@ -9,7 +12,6 @@ import { config } from '../runtimeConfig.js'
  *
  * ## State properties:
  * - `webproj` {string}: Base URL for the WEBPROJ API.
- * - `token` {string|null}: API authentication token.
  * - `baseUrl` {string|null}: Base URL for static assets.
  * - `CRSOptions` {Object}: CRS options loaded from API/localStorage.
  * - `CoverArea` {string}: Selected cover area (e.g. 'DK', 'GL').
@@ -30,7 +32,6 @@ export const useKtStore = defineStore('KtStore', {
    * Pinia store for coordinate transformation.
    * @typedef {Object} KtStoreState
    * @property {string} webproj - Base API URL for WEBPROJ.
-   * @property {string|null} token - API authentication token.
    * @property {string|null} baseUrl - Base URL for static assets.
    * @property {Object} CRSOptions - CRS options loaded from API/localStorage.
    * @property {string} CoverArea - Selected cover area (e.g. 'DK', 'GL').
@@ -41,9 +42,6 @@ export const useKtStore = defineStore('KtStore', {
    */
   state: () => ({
     webproj: `${config.apiBaseUrl}${config.apiBasePath}`,
-
-    // Authentication token, default to null if not provided
-    token: config.dataforsyningToken || null,
 
     //baseUrl to find statically copied members
     baseUrl: new URL(import.meta.url).origin || null,
@@ -68,15 +66,6 @@ export const useKtStore = defineStore('KtStore', {
      * @returns {string}
      */
     getWebProj: (state) => state.webproj,
-    /**
-     * Get the API token for WEBPROJ requests.
-     * Can be generated at https://dataforsyningen.dk/
-     * @see https://dataforsyningen.dk/
-     * @param {KtStoreState} state
-     * @returns {string|null} API authentication token or null if not set.
-     */
-    getToken: (state) => state.token,
-
     /**
      * Get the selected cover area.
      * Returns the selected cover area code.
@@ -237,6 +226,21 @@ export const useKtStore = defineStore('KtStore', {
   },
   actions: {
     /**
+     * Transform coordinates between two CRS through the WEBPROJ API.
+     * @async
+     * @param {string} from - The SRID of the input coordinates.
+     * @param {string} to - The SRID to transform to.
+     * @param {Object} coordinates - The input coordinates object ({ v1, v2, v3, v4 }).
+     * @returns {Promise<Object>} The transformed coordinates object.
+     */
+    async transform(from, to, coordinates) {
+      const response = await authFetch(`${this.webproj}${from}/${to}/${mapCoorToList(coordinates)}`)
+      if (!response.ok) {
+        throw new Error(`Error fetching transformation: ${response.status} ${response.statusText}`)
+      }
+      return response.json()
+    },
+    /**
      * Set the selected cover area (e.g. 'DK' or 'GL').
      * @warning setting the coverarea to anything else than 'DK' or 'GL' bricks the app 
      * @param {string} area - The cover area code.
@@ -255,7 +259,7 @@ export const useKtStore = defineStore('KtStore', {
      */
     async fetchCRSOptions() {
       try {
-        const response = await fetch(`https://api.dataforsyningen.dk/rest/webproj/v1.2/crs/?token=${this.token}`)
+        const response = await authFetch(CRS_URL)
         if (!response.ok) {
           throw new Error(`Error fetching CRS-Options! status: ${response.status}`)
         }
@@ -292,7 +296,7 @@ export const useKtStore = defineStore('KtStore', {
             }
             else {
               try {
-                const detailsResponse = await fetch(`https://api.dataforsyningen.dk/rest/webproj/v1.2/crs/${crsOption}?token=${this.token}`)
+                const detailsResponse = await authFetch(`${CRS_URL}${crsOption}`)
                 if (!detailsResponse.ok) {
                   throw new Error(`Error fetching details for ${crsOption}`)
                 }
@@ -362,14 +366,7 @@ export const useKtStore = defineStore('KtStore', {
       }
       else{
         try {
-          const coordinateResponse = await fetch(
-            `${this.webproj}${crs}/${this.CRSFrom}/${mapCoorToList(coordinates)}?token=${this.token}`,
-          )
-          if(!coordinateResponse.ok){
-            throw new Error(`Error Fetching coordinatesFrom: ${coordinateResponse.statusText}`)
-          }
-          const coordinatesData = await coordinateResponse.json()
-          this.CoordinatesFrom = coordinatesData
+          this.CoordinatesFrom = await this.transform(crs, this.CRSFrom, coordinates)
         } catch (error) {
           console.error('[CoordinatesFrom] Fetch Error: failed fetching coordinatesfrom, update aborted', error)
         }
@@ -399,13 +396,7 @@ export const useKtStore = defineStore('KtStore', {
       }
       else{
         try {
-          const coordinateResponse = await fetch(
-            `${this.webproj}${crs}/${this.CRSFrom}/${mapCoorToList(coordinates)}?token=${this.token}`,
-          )
-          if(!coordinateResponse.ok){
-            throw new Error(`Error Fetching coordinatesFrom: ${coordinateResponse.statusText}`)
-          }
-          const coordinatesData = await coordinateResponse.json()
+          const coordinatesData = await this.transform(crs, this.CRSFrom, coordinates)
           coordinatesData.v3 = v3
           this.CoordinatesFrom = coordinatesData
         } catch (error) {
@@ -429,14 +420,7 @@ export const useKtStore = defineStore('KtStore', {
       }
       else {
         try {
-          const coordinateResponse = await fetch(
-            `${this.webproj}${this.CRSFrom}/${this.CRSTo}/${mapCoorToList(this.CoordinatesFrom)}?token=${this.token}`,
-          )
-          if(!coordinateResponse.ok){
-            throw new Error(`Error Fetching coordinatesTo: ${coordinateResponse.statusText}`)
-          }
-          const coordinatesData = await coordinateResponse.json()
-          this.CoordinatesTo = coordinatesData
+          this.CoordinatesTo = await this.transform(this.CRSFrom, this.CRSTo, this.CoordinatesFrom)
         } catch (error) {
           console.error('[CoordinatesTo] Fetch Error: failed fetching coordinatesTo, update aborted', error)
         }

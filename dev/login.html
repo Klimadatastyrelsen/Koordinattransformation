@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KDS Auth | MOCK</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-content: center;
+      justify-items: center;
+      gap: 1rem;
+      font-family: Roboto, sans-serif;
+      background: hsl(60, 7%, 95%);
+      color: hsl(45, 15%, 10%);
+    }
+    p {
+      margin: 0;
+      font-size: 0.875rem;
+    }
+    span {
+      padding: 0.3rem 0.7rem;
+      border-radius: 99999px;
+      background-color: #fff;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    form {
+      margin-top: 5rem;
+    }
+    button {
+      height: 2.5rem;
+      padding: 0.25rem 1rem;
+      border: 1px solid hsl(198, 100%, 30%);
+      border-radius: 1.5rem;
+      background: hsl(198, 100%, 30%);
+      color: #fff;
+      font: inherit;
+      cursor: pointer;
+    }
+    button:hover {
+      background: hsl(198, 100%, 40%);
+      border-color: hsl(198, 100%, 40%);
+    }
+  </style>
+</head>
+<body>
+  <svg width="45" height="45" viewBox="0 0 45 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <title>Klimadatastyrelsen</title>
+    <style>
+      .dsl-path {stroke: #fff; stroke-width: 1.3px;}
+      .dsl-circle {fill: hsl(198,100%,29%); stroke: hsl(198,100%,29%);}
+    </style>
+    <circle class="dsl-circle" cx="22.5" cy="22.5" r="21.7"/>
+    <g transform="translate(8,5.5)">
+      <path class="dsl-path" d="M14.49 1.34V3M14.49 6V7M17.65 4.49H16M13 4.49H11.34" stroke-linecap="round"/>
+      <path class="dsl-path" d="M5 24.5H24"/>
+      <path class="dsl-path" d="M5 26.5H24"/>
+      <path class="dsl-path" d="M5 28.5H24"/>
+      <circle class="dsl-path" cx="14.50" cy="9.50" r="1.7"/>
+      <mask id="mask0_2142_35" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="7" width="29" height="16">
+        <path d="M0 7H29V22.17H0V7Z" fill="#D9D9D9"/>
+      </mask>
+      <g mask="url(#mask0_2142_35)">
+        <path class="dsl-path" d="M14.50 24.41V11.68M14.50 11.68C15.49 11 16.49 9.5 19.50 9.51C21.99 9.52 23.50 10.5 23.50 13C23.50 17 21.07 19.42 17.00 25M14.50 11.68C13.49 11 12.49 9.52 9.50 9.51C6.99 9.5 5.50 10.5 5.50 13C5.50 17 7.95 19.42 12.00 25M23.45 12.27C25.67 12.27 26.70 13.5 26.70 15.5C26.70 18 23.27 22.61 21.00 25M5.54 12.27C3.24 12.27 2.30 13.48 2.30 15.48C2.30 18 5.72 22.61 8.00 25"/>
+      </g>
+    </g>
+  </svg>
+  <p>KDS Auth</p>
+  <span>DEV MOCK</span>
+  <form method="post">
+    <input type="hidden" name="username" value="dev">
+    <button>Log ind</button>
+  </form>
+</body>
+</html>

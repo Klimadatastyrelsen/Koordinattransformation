@@ -84,8 +84,7 @@ input[type="number"]::-ms-expand {
 }
 
 /* ========== Search Components ========== */
-.KT-gsearch {
-  position: relative;
+.KT-address-search {
   background-color: var(--bg2);
   width: 100%;
   padding: 0.2rem 0.8rem;
@@ -97,26 +96,54 @@ input[type="number"]::-ms-expand {
   align-items: center;
 }
 
-.KT-gsearch-el {
-  margin: 0.5rem !important;
+.KT-address-search-el {
+  margin: 0.5rem;
 }
 
-#gSearch {
+.KT-address-search-field {
+  position: relative;
   min-width: 60%;
+}
+
+.KT-address-search-results {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  max-height: 15rem;
+  overflow-y: auto;
   margin: 0;
   padding: 0;
+  list-style: none;
+  background-color: var(--bg1);
+  border: 1px solid var(--grey2);
 }
 
-/* Search result list */
-.gs-result-list {
-  max-height: 15rem;
-  overflow-y: scroll;
-  z-index: 100;
+.KT-address-search-results li {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  padding: var(--space-sm);
+  cursor: pointer;
 }
 
-/* Hide search button */
-.gs-input-button {
-  display: none !important;
+.KT-address-search-city {
+  color: var(--muted-color);
+}
+
+.KT-address-search-kind {
+  margin-left: auto;
+  padding: 0.1em 0.6em;
+  border-radius: 1em;
+  background-color: var(--bg3);
+  color: var(--color);
+  font-size: 0.75em;
+  white-space: nowrap;
+}
+
+.KT-address-search-results li:hover,
+.KT-address-search-results li[aria-selected="true"] {
+  background-color: var(--bg2);
 }
 
 /* ========== Layout & Containers ========== */

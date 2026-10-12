@@ -9,17 +9,18 @@
 <script setup>
 import KoorHeader from './components/shared/KoorHeader.vue'
 import { useKtStore } from './store/store.js'
-import { onBeforeMount, onMounted, provide, onBeforeUnmount, ref, nextTick } from 'vue'
+import { signedIn } from './auth.js'
+import { onMounted, provide, onBeforeUnmount, ref, watch } from 'vue'
 
 const KtStore = useKtStore()
 
 const isMobile = ref(window.innerWidth < 1055)
 provide('isMobile', isMobile)
 
-onBeforeMount(async () => {
-  await KtStore.fetchCRSOptions()
-  await nextTick()
-})
+// immediate: the first guard can resolve before the app mounts
+watch(signedIn, (value) => {
+  if (value) KtStore.fetchCRSOptions()
+}, { immediate: true })
 
 onMounted(() => {
   const handleResize = () => {

@@ -5,6 +5,8 @@ public/
 dist/
 playwright-report/
 test-results/
+tests/e2e/.auth/
 
 # local env files - real values never live in this repo
 .env*
+!.env.example
