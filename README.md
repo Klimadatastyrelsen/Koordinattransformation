@@ -51,16 +51,10 @@ A new runtime variable needs a placeholder in `index.html` and a key in `src/run
 
 ## Container and release
 
-CI builds a rootless nginx image and deploys it with the Helm chart in `charts/koordinattransformation/`. To build and run it locally with the values from `.env`:
+To build the rootless nginx image locally:
 
 ```bash
 docker build -t koordinattransformation:dev .
-docker run --rm -p 8080:8080 \
-  --env-file .env \
-  --mount type=tmpfs,destination=/usr/share/nginx/html \
-  --mount type=tmpfs,destination=/tmp \
-  --read-only \
-  koordinattransformation:dev
 ```
 
 To release, bump the version and push the tag:
@@ -70,10 +64,7 @@ npm version patch    # or minor / major
 git push --follow-tags
 ```
 
-CI checks that `package.json` matches the tag, then builds and pushes the image and the chart.
-
-> [!NOTE]
-> This applies only to the `k8s` branch. `main` still deploys through Jenkins until the cutover.
+When you push a version tag, GitHub Actions checks it against `package.json` and publishes the image and Helm chart to GHCR. Flux deploys the chart version pinned in the platform repository. The separate Jenkins production pipeline deploys the selected Git tag.
 
 ## Code notes
 

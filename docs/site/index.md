@@ -22,7 +22,7 @@ Vælg **Danmark** eller **Grønland** i menuen øverst til højre. Danmark er va
 1. Under **Input** skal du vælge det koordinatsystem, du vil transformere fra.
 2. Under **Output** skal du vælge det koordinatsystem, du vil transformere til.
 
-Listerne viser hvert system med kort navn og EPSG-kode, fx `ETRS89/UTM32N (EPSG:25832)`.
+Listerne viser hvert system med kort navn og kode, fx `ETRS89/UTM32N (EPSG:25832)`.
 
 ## Angiv et punkt
 
