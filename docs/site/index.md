@@ -10,7 +10,7 @@ Læs mere om koordinattransformation på [Klimadatastyrelsens webside](https://w
 
 ## Vælg Danmark eller Grønland
 
-Vælg **Danmark** eller **Grønland** i menuen øverst til højre. Siden åbner med Danmark.
+Vælg **Danmark** eller **Grønland** i menuen øverst til højre. Danmark er valgt fra start.
 
 | Område   | Baggrundskort        | Koordinatsystemer i listerne              |
 | -------- | -------------------- | ----------------------------------------- |
@@ -19,54 +19,48 @@ Vælg **Danmark** eller **Grønland** i menuen øverst til højre. Siden åbner 
 
 ## Vælg koordinatsystemer
 
-1. Under **Input** vælger du det koordinatsystem, som din koordinat er i.
-2. Under **Output** vælger du det koordinatsystem, som du vil have koordinaten i.
+1. Under **Input** skal du vælge det koordinatsystem, du vil transformere fra.
+2. Under **Output** skal du vælge det koordinatsystem, du vil transformere til.
 
 Listerne viser hvert system med kort navn og EPSG-kode, fx `ETRS89/UTM32N (EPSG:25832)`.
 
-## Angiv en koordinat
+## Angiv et punkt
 
-Du kan angive koordinaten på tre måder:
+Indtast koordinaterne under **Input**, eller klik på kortet. I Danmark kan du også søge efter en adresse eller et stednavn og vælge et resultat.
 
-- Skriv koordinaten i felterne under **Input**.
-- Klik på kortet. Siden sætter en markør og bruger punktet som input.
-- Søg efter en adresse eller et stednavn i feltet **Søg koordinat via adresse eller stednavn**, og vælg et resultat. Søgningen findes kun for Danmark.
-
-Der er ingen knap til at transformere. Siden transformerer koordinaten kort tid efter, at du er holdt op med at skrive. Markøren på kortet flytter sig til koordinaten.
+Markøren på kortet viser punktet. Når alle felter er udfyldt korrekt, vises resultatet automatisk under **Output**.
 
 ### Format
 
-Brug punktum som decimaltegn. Siden transformerer kun, når alle felter har det rigtige format. Et felt med forkert format bliver markeret, og siden viser, hvilket format feltet skal have.
+Brug punktum som decimaltegn. Hvis et tal har forkert format, markeres feltet. Ved feltet kan du se, hvordan du skal skrive tallet.
 
-Koordinater i meter skriver du som tal med 0-4 decimaler.
+Skriv koordinater i meter med højst fire decimaler.
 
-For et geografisk koordinatsystem vælger du formatet under felterne:
+Hvis du bruger et geografisk koordinatsystem, kan du vælge formatet under felterne. Minutter og sekunder kan være nul eller positive tal.
 
-| Format           | Grader                | Minutter                       | Sekunder                       |
-| ---------------- | --------------------- | ------------------------------ | ------------------------------ |
-| `DD.DD°`         | Tal med 0-9 decimaler |                                |                                |
-| `DD° MM.MM'`     | Tal uden decimaler    | Positivt tal med 0-6 decimaler |                                |
-| `DD° MM' SS.SS"` | Tal uden decimaler    | Positivt tal uden decimaler    | Positivt tal med 0-4 decimaler |
+| Format           | Grader            | Minutter          | Sekunder          |
+| ---------------- | ----------------- | ----------------- | ----------------- |
+| `DD.DD°`         | Højst 9 decimaler |                   |                   |
+| `DD° MM.MM'`     | Hele tal          | Højst 6 decimaler |                   |
+| `DD° MM' SS.SS"` | Hele tal          | Hele tal          | Højst 4 decimaler |
 
-Hvis input-systemet har en højde, fx kote eller ellipsoidehøjde, er der også et felt til højden. Skriv højden i meter som et tal med 0-4 decimaler.
+Hvis koordinatsystemet under **Input** har en højdekomponent, vises også et felt til fx kote eller ellipsoidehøjde. Skriv højden i meter med højst fire decimaler.
 
 ## Læs resultatet
 
-Resultatet står under **Output** som én linje, fx to koordinater og en højde i meter. Klik på kopiér-knappen ved siden af for at kopiere resultatet.
+Under **Output** står koordinaterne og en eventuel højde på én linje. Klik på kopiikonet ved siden af resultatet.
 
 For et geografisk koordinatsystem vælger du formatet under resultatet på samme måde som under **Input**.
 
-Resultatet har dette antal decimaler:
-
-| Koordinater                  | Decimaler |
-| ---------------------------- | --------- |
-| Meter                        | 4         |
-| Grader                       | 8         |
-| Grader og minutter           | 0 og 6    |
-| Grader, minutter og sekunder | 0, 0 og 4 |
+| Format                       | Sådan vises resultatet                                    |
+| ---------------------------- | --------------------------------------------------------- |
+| Meter                        | Meter med fire decimaler                                  |
+| Decimalgrader                | Grader med otte decimaler                                 |
+| Grader og minutter           | Hele grader og minutter med seks decimaler                |
+| Grader, minutter og sekunder | Hele grader, hele minutter og sekunder med fire decimaler |
 
 > [!NOTE]
-> Resultatet har kun en højde, når både input-systemet og output-systemet har en højde. Når et af systemerne er todimensionalt, giver en højde ikke mening og vil være misvisende.
+> Resultatet viser kun højden, hvis begge koordinatsystemer har en højdekomponent.
 
 ## Tilgængelighed
 

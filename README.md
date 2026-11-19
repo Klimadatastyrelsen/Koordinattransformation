@@ -8,29 +8,17 @@ The user guide, in Danish, is in [`docs/site/`](docs/site/).
 
 You need Node.js >= 22.14.0 and npm >= 10.9.2.
 
+Copy [.env.example](.env.example) to `.env` and fill in the Bifrost URL, Bifrost key, and map tokens.
+
 Local development runs against a mock login server and WEBPROJ from `compose.yml`:
 
 ```bash
-cp .env.example .env
 docker compose up -d
 npm install
 npm run dev
 ```
 
 Sign in with the button on the login page.
-
-Bifrost and the basemaps still run against production. Set `BIFROST_URL`, `BIFROST_KEY` and the map tokens in `.env`; the keys come from KDS Auth. Bifrost does not accept the mock login's tokens, so the dev server proxies `/bifrost` and sends `BIFROST_KEY` itself, and the key never reaches the browser.
-
-| Variable | What it is |
-| --- | --- |
-| `VITE_API_BASE_URL`, `VITE_API_BASE_PATH` | WEBPROJ and its transform path. The CRS list comes from `${VITE_API_BASE_URL}/v1.2/crs/` |
-| `VITE_AUTH_URL` | The KDS Auth issuer. The app reads its `/.well-known/openid-configuration` |
-| `VITE_AUTH_CLIENT_ID` | A public PKCE client with `<origin>/callback` as redirect URI and `<origin>/` as post-logout URI |
-| `VITE_AUTH_AUDIENCE` | The audience that WEBPROJ and Bifrost accept |
-| `VITE_BIFROST_URL` | Bifrost. `/bifrost` in development, through the proxy |
-| `VITE_DATAFORSYNING_TOKEN` | Dataforsyningen token for the Greenland map. Create one at https://dataforsyningen.dk/ |
-| `VITE_DATAFORDELER_TOKEN` | Datafordeler API key for the Denmark map. Create one under Autentifikationsmetoder at https://datafordeler.dk/. User name and password are phased out on 15 January 2027 |
-| `BIFROST_URL`, `BIFROST_KEY` | Development only, for the proxy |
 
 ## Run
 
