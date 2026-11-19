@@ -64,7 +64,7 @@ npm version patch    # or minor / major
 git push --follow-tags
 ```
 
-When you push a version tag, GitHub Actions checks it against `package.json` and publishes the image and Helm chart to GHCR. Flux deploys the chart version pinned in the platform repository. The separate Jenkins production pipeline deploys the selected Git tag.
+When you push a version tag, GitHub Actions checks it against `package.json` and publishes the image and Helm chart to GHCR.
 
 ## Code notes
 
