@@ -8,6 +8,12 @@ Koordinattransformation er en webapplikation på koordinattransformation.dk. Den
 
 Læs mere om koordinattransformation på [Klimadatastyrelsens webside](https://www.klimadatastyrelsen.dk/kortlaegning/geodaesi/koordinattransformation).
 
+## Log ind
+
+Du skal logge ind for at bruge Koordinattransformation. Når du åbner siden og ikke er logget ind, sender den dig til log ind. Bagefter kommer du tilbage til den side, du ville se. **Om Koordinattransformation** kan du se uden at logge ind.
+
+Når du er logget ind, finder du **Log ud** i menuen øverst til højre.
+
 ## Vælg Danmark eller Grønland
 
 Vælg **Danmark** eller **Grønland** i menuen øverst til højre. Danmark er valgt fra start.
